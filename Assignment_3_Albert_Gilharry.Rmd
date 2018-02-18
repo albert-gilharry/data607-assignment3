@@ -1,0 +1,187 @@
+---
+title: "DATA607 Assignment 3"
+author: "Albert Gilharry"
+date: "15 February 2018"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    css: ./css.css
+    highlight: pygments
+    pdf_document: default
+    theme: spacelab
+    toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<br />
+<br />
+
+```{r}
+library("stringr")
+```
+<br />
+
+3. Copy the introductory example. The vector *name* stores the extracted names.
+
+
+```{r}
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555 -6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
+name <- unlist(str_extract_all(raw.data, "[[:alpha:]., ]{2,}"))
+name
+```
+<br />
+
+  - Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
+  
+      
+  <div id="solution">
+      
+       Assuming that this question refers to names that are in reversed order and separated by a comma, and that titles and other designations should remain in place:
+        
+    ```{r}
+    names <- str_split(name,", ")
+    
+    for( i in 1:length(name) ){
+       if(length(names[[i]]) == 2){
+         name[i]<-str_c(names[[i]][2], names[[i]][1], sep=" ")
+       }
+    }
+    
+    ```
+      
+    Result:  
+    ```{r}
+    print(name)
+    ```
+      
+  </div>
+  <br />
+      
+  - Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
+  
+    
+  <div id="solution">
+    
+    My assumption here is that titles start with a single uppercase letter followed by 1 to 3 alphabetic characters and concludes with a dot.
+    
+    ```{r}
+    str_detect(name,"[:upper:]{1}[:alpha:]{1,3}\\.")
+    ```
+    
+  </div>
+  <br />
+      
+  - Construct a logical vector indicating whether a character has a second name.
+  
+    
+  <div id="solution">
+    
+    My approach to this is to separate the expression into two categories, people with a title and second name and people without a title but has a second name. I assumed that a title must start with an uppercase character and must be followed 1 to 3 aplhabetic characters and ends with a dot. An uppercase letter followed by dot will be treated as an abbreviated first name. These conditions are separated by a pipe to accomodate with both types. A person with a title and a second name will has an additional space followed by alphabetic characters in their string.
+      
+    ```{r}
+      str_detect(name,"([:upper:]{1}\\.([:space:][:upper:][:alpha:]+){2})|([:upper:]{1}[:lower:]+\\.([:space:][:upper:][:alpha:]+){3})")
+    ```
+    
+  </div>
+  <br />
+    
+4.  Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+  - [0-9]+\\$
+  
+      
+  <div id="solution">
+      
+        This expression represents numbers with a minimum length of 1 digit followed by a dollar sign *$*.
+        
+        Example: *0235$*
+        
+    ```{r}
+    str_extract("0235$","[0-9]+\\$")
+    ```
+  </div>
+  <br />
+      
+  - \\b[a-z]{1,4}\\b
+  
+  
+  <div id="solution">
+      
+      This expression represents words that are up to four letters long.
+      
+      Example: *a word*
+      
+    ```{r}
+    str_extract_all("a word","\\b[a-z]{1,4}\\b")
+    ```
+  </div>
+  <br />
+  
+  - .*?\\.txt$
+  
+  
+  <div id="solution">
+      
+      This expression represents strings starts with 0 or more characters and ends with *.txt*. This is representative of files with the extension *.txt*, but having an actual name for the file is optional.
+      
+      Example: *.txt*
+      
+    ```{r}
+    str_detect(".txt",".*?\\.txt$")
+    ```
+    
+  </div>
+  <br />
+  
+      
+  - \\d{2}/\\d{2}/\\d{4}
+  
+  <div id="solution">
+      This represents 8 digits separated by a forward slash after the second digit and one after the fouth digit.
+      
+      Example: 24/65/9987
+      
+    ```{r}
+    str_extract("29/22/2333","\\d{2}/\\d{2}/\\d{4}")
+    ```
+    
+  </div>
+  <br />
+  
+  - <(.+?)>.+?</\\1>
+  
+  <div id="solution">
+        The represents a text with at minimum 1 character enclosed in an XML type tag. The opening must be closed following the enclosed text.
+        Example: <d>x</d>
+    ```{r}
+    str_extract("<d>x</d>","<(.+?)>.+?</\\1>")
+    ``` 
+        
+  </div>
+  <br />
+      
+9.  The following code hides a secret message. Crack it with R and regular expressions. Hint: Some of the characters are more revealing than others! The code snippet is also available in the materials at www.r-datacollection.com.
+
+<div>
+clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3c
+oc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.
+SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr
+</div>
+
+   <div id="solution">
+     
+     Extract the uppercase letters and punctuations from the text.
+     
+```{r}
+txt <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+
+str_extract_all(txt,"[:upper:]|[:punct:]")
+
+  
+```
+    
+    This reveals "CONGRATULATIONS YOU ARE A SUPERNERD!".
+  </div>
